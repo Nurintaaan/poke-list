@@ -1,15 +1,15 @@
 <template>
-  <div class="flex flex-row">
+  <div class="flex flex-row flex-wrap w-screen">
     <PokeCard
       v-for="(pokemon, index) in pokemons"
       :key="index"
       :pokemon="pokemon"
-      class="m-4"
+      class="m-2 mb-4 w-80"
     />
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import Vue from 'vue'
 
 export default Vue.extend({
@@ -18,17 +18,20 @@ export default Vue.extend({
     return {
       pokemons: [],
       isLoading: false,
-      limit: 100,
+      limit: 50,
+      page: 1,
+      total: 0,
     }
   },
   mounted() {
-    this.getPokeList(1)
+    this.getPokeList()
+    this.infiniteScroll()
   },
   methods: {
-    async getPokeList(page: number) {
+    async getPokeList() {
       try {
         this.isLoading = true
-        const offset = (page - 1) * this.limit
+        const offset = (this.page - 1) * this.limit
         const query = `query getPokemons {
           species: pokemon_v2_pokemonspecies(
             limit:  ${this.limit}
@@ -57,12 +60,32 @@ export default Vue.extend({
           'https://beta.pokeapi.co/graphql/v1beta',
           { query }
         )
-        this.pokemons = result?.data?.data?.species
+        this.pokemons = [...this.pokemons, ...result?.data?.data?.species]
+        this.total = result?.data?.data?.species_aggregate?.aggregate?.count
         this.isLoading = false
       } catch (e) {
         console.log('error', e)
       } finally {
         this.isLoading = false
+      }
+    },
+    infiniteScroll() {
+      window.onscroll = () => {
+        const bottomOfWindow =
+          Math.max(
+            window.pageYOffset,
+            document.documentElement.scrollTop,
+            document.body.scrollTop
+          ) +
+            window.innerHeight ===
+          document.documentElement.offsetHeight
+
+        if (bottomOfWindow) {
+          this.page++
+          if (this.page * this.limit < this.total) {
+            this.getPokeList()
+          }
+        }
       }
     },
   },

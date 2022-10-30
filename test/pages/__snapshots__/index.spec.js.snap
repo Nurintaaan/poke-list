@@ -2,6 +2,6 @@
 
 exports[`Pokemon page should show data correctly 1`] = `
 <div
-  class="flex flex-row"
+  class="flex flex-row flex-wrap w-screen"
 />
 `;
