@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Pokemon page should show data correctly 1`] = `
+<div
+  class="flex flex-row"
+/>
+`;
